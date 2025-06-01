@@ -1,14 +1,10 @@
 startMenu();
 // Game menu and start the game when the button is clicked.
-// ritornare i due nomi player, cancellare tutto il body, 
 function startMenu() {
-    console.log("Game started!");
+
     const startGameButton = document.getElementById("startGame");
 
-
     startGameButton.addEventListener("click", function () {
-        console.log("Button clicked! Starting the game...");
-
         const player1Name = document.getElementById("player1").value;
         const player2Name = document.getElementById("player2").value;
         const player1 = createPlayer(player1Name, "X");
@@ -35,13 +31,11 @@ function startGame(player1, player2) {
         [0, 4, 8],
         [2, 4, 6]
     ];
-    let player1Turn = true; //da vedere se posso non renderla così globale
-
 
     const game = createGameBoardContainer();
     const player1Div = game.createPlayerBoard(player1);
-    const gameCells = game.createGameCells();
-    const player2Div = game.createPlayerBoard(player2);;
+    const gameCells = game.createGameCells();      //value not used but maybe useful in future update
+    const player2Div = game.createPlayerBoard(player2);
 
 
     function createGameBoardContainer() {
@@ -49,7 +43,7 @@ function startGame(player1, player2) {
         gameContainer.classList.add("game-container");
         document.body.appendChild(gameContainer);
 
-        return { createPlayerBoard, createGameCells };
+        return { createPlayerBoard, createGameCells };  
 
 
         function createPlayerBoard(player) {
@@ -62,14 +56,16 @@ function startGame(player1, player2) {
             playerScoreDiv.classList.add("player-score");
             playerScoreDiv.textContent = `Score: ${player.getScore()}`;
             playerDiv.appendChild(playerScoreDiv);
-            return { playerDiv, playerScoreDiv };
+            return {  playerScoreDiv };    //return playerScore to update score later
         }
         function createGameCells() {
             const gameBoard = document.createElement("div");
             gameBoard.classList.add("game-board");
             gameContainer.appendChild(gameBoard);
 
+            let player1Turn = true; // Variable to track whose turn it is
             const gameCells = [];
+
             for (let i = 0; i < 9; i++) {
                 const cell = document.createElement("div");
                 cell.classList.add("cell");
@@ -77,7 +73,7 @@ function startGame(player1, player2) {
                 gameCells.push(cell);
                 gameBoard.appendChild(cell);
 
-                cell.addEventListener("click", () => { //da trasformare in funzione
+                cell.addEventListener("click", () => { 
                     writeIntoCell(cell);
                     checkWinCondition(cell);
                     checkTieCondition(cell);
@@ -112,8 +108,8 @@ function startGame(player1, player2) {
                                     player2.giveScore();
                                     player2Div.playerScoreDiv.textContent = `Score: ${player2.getScore()}`;
                                 }
-                                // Reset the game board
-                                gameCells.forEach(cell => cell.textContent = "");
+                    
+                                resetGameBoard();
 
                             }
                         }
@@ -126,19 +122,20 @@ function startGame(player1, player2) {
                     const allCellsFilled = gameCells.every(cell => cell.textContent !== "");
                     if (allCellsFilled) {
                         alert("It's a tie!");
-                        // Reset the game board
-                        gameCells.forEach(cell => cell.textContent = "");
+                        resetGameBoard();
                     }
                 }
-            return gameCells;
+
+                function resetGameBoard(){
+                    gameCells.forEach(cell => cell.textContent = "");
+                }
+            return gameCells;  //not used but could be useful for future features
+            
         }
+        //turn display
     }
 
 }
-
-
-//Work on Tie Control
-
 
 // Function to create a player object with a name, symbol, and score
 function createPlayer(name, symbol) {
