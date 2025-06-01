@@ -4,8 +4,8 @@ startMenu();
 function startMenu() {
     console.log("Game started!");
     const startGameButton = document.getElementById("startGame");
-    
-    
+
+
     startGameButton.addEventListener("click", function () {
         console.log("Button clicked! Starting the game...");
 
@@ -25,16 +25,24 @@ function startMenu() {
 
 
 function startGame(player1, player2) {
+    const possiblyWinningCombinations = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ];
     let player1Turn = true; //da vedere se posso non renderla così globale
-    createBoards();
 
-    function createBoards() {
 
-        const game = createGameBoardContainer();
-        const player1Div = game.createPlayerBoard(player1);
-        const gameCells = game.createGameCells();
-        const player2Div = game.createPlayerBoard(player2);;
-    }
+    const game = createGameBoardContainer();
+    const player1Div = game.createPlayerBoard(player1);
+    const gameCells = game.createGameCells();
+    const player2Div = game.createPlayerBoard(player2);;
+
 
     function createGameBoardContainer() {
         const gameContainer = document.createElement("div");
@@ -54,7 +62,7 @@ function startGame(player1, player2) {
             playerScoreDiv.classList.add("player-score");
             playerScoreDiv.textContent = `Score: ${player.getScore()}`;
             playerDiv.appendChild(playerScoreDiv);
-            return {playerDiv, playerScoreDiv};
+            return { playerDiv, playerScoreDiv };
         }
         function createGameCells() {
             const gameBoard = document.createElement("div");
@@ -68,40 +76,77 @@ function startGame(player1, player2) {
                 cell.id = i;
                 gameCells.push(cell);
                 gameBoard.appendChild(cell);
+
                 cell.addEventListener("click", () => { //da trasformare in funzione
-                    if(cell.textContent === "") {
-                        if(player1Turn===true) {
-                        cell.textContent = player1.symbol;
-                        player1Turn=false;
+                    writeIntoCell(cell);
+                    checkWinCondition(cell);
+                    checkTieCondition(cell);
+                })
+            }
+                function writeIntoCell(cell) {
+                    if (cell.textContent === "") {
+                        if (player1Turn === true) {
+                            cell.textContent = player1.symbol;
+                            player1Turn = false;
                         } else {
-                        cell.textContent = player2.symbol;
-                        player1Turn=true;
+                            cell.textContent = player2.symbol;
+                            player1Turn = true;
                         }
                     } else {
                         alert("Cell already taken! Choose another cell.");
                     }
-                })
+                }
+                // Check for a win condition
+                function checkWinCondition(cell) {
+                    possiblyWinningCombinations.forEach(combination => {
+                        if (cell.textContent !== "") {
+                            const [a, b, c] = combination;
+                            if (gameCells[a].textContent === cell.textContent &&
+                                gameCells[b].textContent === cell.textContent &&
+                                gameCells[c].textContent === cell.textContent) {
+                                alert(`${cell.textContent} wins!`);
+                                if (cell.textContent === player1.symbol) {
+                                    player1.giveScore();
+                                    player1Div.playerScoreDiv.textContent = `Score: ${player1.getScore()}`;
+                                } else {
+                                    player2.giveScore();
+                                    player2Div.playerScoreDiv.textContent = `Score: ${player2.getScore()}`;
+                                }
+                                // Reset the game board
+                                gameCells.forEach(cell => cell.textContent = "");
+
+                            }
+                        }
+                    }
+                    );
+                
             }
+                function checkTieCondition(cell) {
+                    // Check if all cells are filled
+                    const allCellsFilled = gameCells.every(cell => cell.textContent !== "");
+                    if (allCellsFilled) {
+                        alert("It's a tie!");
+                        // Reset the game board
+                        gameCells.forEach(cell => cell.textContent = "");
+                    }
+                }
             return gameCells;
         }
     }
-    
+
 }
 
 
+//Work on Tie Control
 
-
-
-//gameboard in an array inside gameboard object
-//player stored in obj and another obj to control the flow of the game
 
 // Function to create a player object with a name, symbol, and score
 function createPlayer(name, symbol) {
     let score = 0;                        //Private variable to hold the score
     const getScore = () => score;
     const giveScore = () => ++score;
-    return { name, symbol, getScore, giveScore,
-        //play: playRound();
+    return {
+        name, symbol, getScore, giveScore,
     };
 }
 
